@@ -1,0 +1,30 @@
+CREATE TABLE Stores(
+	id BIGINT IDENTITY(1,1) PRIMARY KEY,
+	name NVARCHAR(150) NOT NULL UNIQUE,
+	apiurl NVARCHAR(255) NOT NULL UNIQUE,
+	apiuser NVARCHAR(10) NOT NULL,
+	apipwdhash NVARCHAR(255) NOT NULL,
+	authtoken NVARCHAR(1024) NULL,
+	authtokendate DATETIME2 NULL,
+	lastsync DATETIME2 NULL,
+	cansync BIT NOT NULL DEFAULT 1,
+	createdat DATETIME2 NOT NULL DEFAULT GETDATE(),
+	updatedat DATETIME2 NOT NULL DEFAULT GETDATE()
+);
+
+GO
+
+CREATE TRIGGER tr_stores_updatedat
+ON Stores
+AFTER UPDATE
+AS
+BEGIN
+	IF NOT UPDATE(updatedat)
+	BEGIN
+		UPDATE s
+		SET updatedat = GETDATE()
+		FROM Stores s
+		INNER JOIN inserted i ON s.id = i.id;
+	END
+END;
+GO
