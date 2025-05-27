@@ -1,6 +1,6 @@
 CREATE TABLE Stores(
 	id BIGINT IDENTITY(1,1) PRIMARY KEY,
-	name NVARCHAR(150) NOT NULL UNIQUE,
+	name NVARCHAR(80) NOT NULL UNIQUE,
 	apiurl NVARCHAR(255) NOT NULL UNIQUE,
 	apiuser NVARCHAR(10) NOT NULL,
 	apipwdhash NVARCHAR(255) NOT NULL,
@@ -10,6 +10,30 @@ CREATE TABLE Stores(
 	cansync BIT NOT NULL DEFAULT 1,
 	createdat DATETIME2 NOT NULL DEFAULT GETDATE(),
 	updatedat DATETIME2 NOT NULL DEFAULT GETDATE()
+);
+
+CREATE TABLE Products(
+	id BIGINT IDENTITY(1,1) PRIMARY KEY,
+	storeid BIGINT NOT NULL,
+	sku NVARCHAR(10) NOT NULL,
+	type NVARCHAR(10) NOT NULL CHECK(type IN ('PROD', 'SERV')),
+	descrip1 NVARCHAR(40) NOT NULL,
+	descrip2 NVARCHAR(40) NULL,
+	descrip3 NVARCHAR(40) NULL,
+	price1 DECIMAL(28,4) NOT NULL,
+	price2 DECIMAL(28,4) NOT NULL,
+	price3 DECIMAL(28,4) NOT NULL,
+	pricei1 DECIMAL(28,4) NULL,
+	pricei2 DECIMAL(28,4) NULL,
+	pricei3 DECIMAL(28,4) NULL,
+	stock DECIMAL(28,4) NULL,
+	active BIT NOT NULL DEFAULT 1,
+	imageurl NVARCHAR(512) NULL,
+	createdat DATETIME2 NOT NULL DEFAULT GETDATE(),
+	updatedat DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+	CONSTRAINT fk_product_store FOREIGN KEY (storeid) REFERENCES Stores(id) ON DELETE CASCADE,
+	CONSTRAINT uq_product_store_sku UNIQUE(storeid, sku)
 );
 
 GO
@@ -27,4 +51,21 @@ BEGIN
 		INNER JOIN inserted i ON s.id = i.id;
 	END
 END;
+
+GO
+
+CREATE TRIGGER tr_stores_product_updatedat
+ON Products
+AFTER UPDATE
+AS
+BEGIN
+	IF NOT UPDATE(updatedat)
+	BEGIN
+		UPDATE p
+		SET updatedat = GETDATE()
+		FROM Products p
+		INNER JOIN inserted i ON p.id = i.id;
+	END
+END;
+
 GO
