@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Administrar Tiendas - SAINT Agregador</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .form-container { margin-bottom: 30px; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9; }
+        .form-container h2 { margin-top: 0; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input[type="text"], .form-group input[type="password"] { width: 95%; padding: 8px; max-width: 400px;}
+        .form-group input[type="checkbox"] { margin-right: 5px; }
+        .error { color: red; font-size: 0.9em; }
+        .success-message { background-color: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border: 1px solid #c3e6cb; }
+        .error-message { background-color: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 15px; border: 1px solid #f5c6cb; }
+        .action-buttons form { display: inline-block; margin-right: 5px;}
+    </style>
+</head>
+<body>
+    <h1>Administrar Tiendas</h1>
+
+    <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+    <div class="form-container">
+        <h2>Agregar Nueva Tienda</h2>
+        <form th:action="@{/admin-tiendas/add}" th:object="${newStore}" method="post">
+            <div class="form-group">
+                <label for="name">Nombre de la Tienda:</label>
+                <input type="text" id="name" th:field="*{name}" />
+                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error"></div>
+            </div>
+            <div class="form-group">
+                <label for="apiUrl">URL Base de la API (ej: http://servidor.com/api/v1):</label>
+                <input type="text" id="apiUrl" th:field="*{apiUrl}" />
+                <div th:if="${#fields.hasErrors('apiUrl')}" th:errors="*{apiUrl}" class="error"></div>
+            </div>
+            <div class="form-group">
+                <label for="apiUser">Usuario API (Saint Admin):</label>
+                <input type="text" id="apiUser" th:field="*{apiUser}" />
+                <div th:if="${#fields.hasErrors('apiUser')}" th:errors="*{apiUser}" class="error"></div>
+            </div>
+            <div class="form-group">
+                <label for="apiPassword">Contraseña API (Saint Admin):</label>
+                <input type="password" id="apiPassword" th:field="*{apiPassword}" />
+                <div th:if="${#fields.hasErrors('apiPassword')}" th:errors="*{apiPassword}" class="error"></div>
+            </div>
+            <div class="form-group">
+                <input type="checkbox" id="canSyncAdd" th:field="*{canSync}" />
+                <label for="canSyncAdd">Activar Sincronización</label>
+            </div>
+            <div>
+                <button type="submit">Agregar Tienda</button>
+            </div>
+        </form>
+    </div>
+
+    <h2>Tiendas Existentes</h2>
+    <table th:if="${not #lists.isEmpty(stores)}">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>URL API</th>
+                <th>Usuario API</th>
+                <th>Sinc. Activa</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="store : ${stores}">
+                <td th:text="${store.id}">1</td>
+                <td th:text="${store.name}">Nombre Tienda</td>
+                <td th:text="${store.apiUrl}">URL</td>
+                <td th:text="${store.apiUser}">Usuario</td>
+                <td th:text="${store.canSync} ? 'Sí' : 'No'">Sí</td>
+                <td class="action-buttons">
+                    <a th:href="@{/admin-tiendas/edit/{id}(id=${store.id})}">Editar</a> |
+                    <a th:href="@{/admin-tiendas/delete/{id}(id=${store.id})}"
+                       onclick="return confirm('¿Está seguro de que desea eliminar esta tienda? Esta acción no se puede deshacer.')">Eliminar</a> |
+                    <form th:action="@{/admin-tiendas/toggle-sync/{id}(id=${store.id})}" method="post">
+                        <button type="submit" th:text="${store.canSync} ? 'Desactivar Sinc.' : 'Activar Sinc.'"></button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div th:if="${#lists.isEmpty(stores)}">
+        <p>No hay tiendas configuradas todavía.</p>
+    </div>
+
+</body>
+</html>

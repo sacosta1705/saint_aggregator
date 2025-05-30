@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Tienda - SAINT Agregador</title>
+    <style>
+        /* Puedes usar el mismo CSS que en manage-stores.html o uno separado */
+        body { font-family: sans-serif; margin: 20px; }
+        .form-container { margin-bottom: 30px; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9; }
+        .form-container h2 { margin-top: 0; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input[type="text"], .form-group input[type="password"] { width: 95%; padding: 8px; max-width: 400px;}
+        .form-group input[type="checkbox"] { margin-right: 5px; }
+        .error { color: red; font-size: 0.9em; }
+        .error-message { background-color: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 15px; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Editar Tienda</h1>
+
+    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+    <div class="form-container" th:if="${storeToEdit}">
+        <form th:action="@{/admin-tiendas/update/{id}(id=${storeToEdit.id})}" th:object="${storeToEdit}" method="post">
+            <input type="hidden" th:field="*{id}" /> <div class="form-group">
+                <label for="editName">Nombre de la Tienda:</label>
+                <input type="text" id="editName" th:field="*{name}" />
+                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error"></div>
+            </div>
+            <div class="form-group">
+                <label for="editApiUrl">URL Base de la API:</label>
+                <input type="text" id="editApiUrl" th:field="*{apiUrl}" />
+                <div th:if="${#fields.hasErrors('apiUrl')}" th:errors="*{apiUrl}" class="error"></div>
+            </div>
+            <div class="form-group">
+                <label for="editApiUser">Usuario API (Saint Admin):</label>
+                <input type="text" id="editApiUser" th:field="*{apiUser}" />
+                <div th:if="${#fields.hasErrors('apiUser')}" th:errors="*{apiUser}" class="error"></div>
+            </div>
+            <div class="form-group">
+                <label for="editApiPassword">Nueva Contraseña API (dejar en blanco para no cambiar):</label>
+                <input type="password" id="editApiPassword" th:field="*{apiPassword}" />
+                <div th:if="${#fields.hasErrors('apiPassword')}" th:errors="*{apiPassword}" class="error"></div>
+            </div>
+            <div class="form-group">
+                <input type="checkbox" id="editCanSync" th:field="*{canSync}" />
+                <label for="editCanSync">Activar Sincronización</label>
+            </div>
+            <div>
+                <button type="submit">Actualizar Tienda</button>
+                <a th:href="@{/admin-tiendas}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+    <div th:unless="${storeToEdit}">
+        <p>No se encontró la tienda para editar.</p>
+        <a th:href="@{/admin-tiendas}">Volver al listado</a>
+    </div>
+</body>
+</html>
